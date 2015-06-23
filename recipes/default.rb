@@ -24,6 +24,23 @@ bash "install-golang" do
     rm -rf #{node['go']['install_dir']}/go
     tar -C #{node['go']['install_dir']} -xzf #{node["go"]["filename"]}
   EOH
+  not_if { node['go']['from_source'] }
+  action :nothing
+end
+
+bash "build-golang" do
+  cwd Chef::Config[:file_cache_path]
+  code <<-EOH
+    rm -rf go
+    rm -rf #{node['go']['install_dir']}/go
+    tar -xzf #{node["go"]["filename"]}
+    cd #{Chef::Config[:file_cache_path]}/go/src
+    export GOROOT=#{node['go']['install_dir']}/go
+    export GOBIN=$GOROOT/bin
+    mkdir -p $GOBIN
+    ./all.bash
+  EOH
+  not_if { !node['go']['from_source'] }
   action :nothing
 end
 
@@ -32,6 +49,7 @@ remote_file File.join(Chef::Config[:file_cache_path], node['go']['filename']) do
   owner 'root'
   mode 0644
   notifies :run, 'bash[install-golang]', :immediately
+  notifies :run, 'bash[build-golang]', :immediately
   not_if "#{node['go']['install_dir']}/go/bin/go version | grep \"go#{node['go']['version']} \""
 end
 

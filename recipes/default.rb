@@ -36,12 +36,14 @@ bash "build-golang" do
     tar -xzf #{node['go']['filename']}
     cd #{Chef::Config[:file_cache_path]}/go/src
     mkdir -p $GOBIN
-    ./all.bash
+    ./#{node['go']['source_method']}
   EOH
   environment ({
     "GOROOT" => node['go']['install_dir'] + "/go",
-    "GOBIN" => "$GOROOT/bin",
-    "GOARM" => node['go']['arm']
+    "GOBIN"  => "$GOROOT/bin",
+    "GOOS"   => node['go']['os'],
+    "GOARCH" => node['go']['arch'],
+    "GOARM"  => node['go']['arm']
   })
   not_if { !node['go']['from_source'] }
   action :nothing

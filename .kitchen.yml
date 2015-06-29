@@ -26,5 +26,6 @@ suites:
   attributes:
     go:
       from_source: true
+      arch: 'amd64'
       owner: 'vagrant'
       group: 'vagrant'

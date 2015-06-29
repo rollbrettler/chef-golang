@@ -49,6 +49,14 @@ bash "build-golang" do
   action :nothing
 end
 
+if node['go']['from_source']
+  %w(gcc make).each do |dev_package|
+    package dev_package do
+      action :install
+    end
+  end
+end
+
 remote_file File.join(Chef::Config[:file_cache_path], node['go']['filename']) do
   source node['go']['url']
   owner 'root'

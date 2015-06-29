@@ -7,10 +7,6 @@
 # All rights reserved - Do Not Redistribute
 #
 
-package "build-essential" do
-  action :install
-end
-
 include_recipe "golang::packages"
 
 golang_package "launchpad.net/gocheck" do

@@ -22,7 +22,7 @@ bash "install-golang" do
   code <<-EOH
     rm -rf go
     rm -rf #{node['go']['install_dir']}/go
-    tar -C #{node['go']['install_dir']} -xzf #{node["go"]["filename"]}
+    tar -C #{node['go']['install_dir']} -xzf #{node['go']['filename']}
   EOH
   not_if { node['go']['from_source'] }
   action :nothing
@@ -39,18 +39,24 @@ bash "build-golang" do
     ./#{node['go']['source_method']}
   EOH
   environment ({
-    "GOROOT" => node['go']['install_dir'] + "/go",
-    "GOBIN"  => "$GOROOT/bin",
-    "GOOS"   => node['go']['os'],
-    "GOARCH" => node['go']['arch'],
-    "GOARM"  => node['go']['arm']
+    'GOROOT' => node['go']['install_dir'] + '/go',
+    'GOBIN'  => "$GOROOT/bin",
+    'GOOS'   => node['go']['os'],
+    'GOARCH' => node['go']['arch'],
+    'GOARM'  => node['go']['arm']
   })
   not_if { !node['go']['from_source'] }
   action :nothing
 end
 
 if node['go']['from_source']
-  %w(gcc make).each do |dev_package|
+  case node["platform"]
+  when 'debian', 'ubuntu'
+    packages = %w(build_essential)
+  when 'redhat', 'centos', 'fedora'
+    packages = %w(gcc glibc-devel)
+  end
+  packages.each do |dev_package|
     package dev_package do
       action :install
     end

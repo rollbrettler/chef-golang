@@ -33,26 +33,26 @@ bash "build-golang" do
   code <<-EOH
     rm -rf go
     rm -rf #{node['go']['install_dir']}/go
-    tar -xzf #{node['go']['filename']}
-    cd #{Chef::Config[:file_cache_path]}/go/src
+    tar -C #{node['go']['install_dir']} -xzf #{node['go']['filename']}
+    cd #{node['go']['install_dir']}/go/src
     mkdir -p $GOBIN
     ./#{node['go']['source_method']}
   EOH
   environment ({
-    'GOROOT' => node['go']['install_dir'] + '/go',
-    'GOBIN'  => "$GOROOT/bin",
+    'GOROOT' => "#{node['go']['install_dir']}/go",
+    'GOBIN'  => '$GOROOT/bin',
     'GOOS'   => node['go']['os'],
     'GOARCH' => node['go']['arch'],
     'GOARM'  => node['go']['arm']
   })
-  not_if { !node['go']['from_source'] }
+  only_if { node['go']['from_source'] }
   action :nothing
 end
 
 if node['go']['from_source']
   case node["platform"]
   when 'debian', 'ubuntu'
-    packages = %w(build_essential)
+    packages = %w(build-essential)
   when 'redhat', 'centos', 'fedora'
     packages = %w(gcc glibc-devel)
   end

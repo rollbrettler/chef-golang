@@ -29,3 +29,4 @@ suites:
       arch: 'amd64'
       owner: 'vagrant'
       group: 'vagrant'
+      version: '1.5rc1'

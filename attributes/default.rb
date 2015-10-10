@@ -8,7 +8,7 @@ if node['go']['from_source']
   default['go']['arch'] = 'arm'
   default['go']['arm'] = '6'
   default['go']['source_method'] = 'all.bash'
-  default['go']['bootstrap_url'] = 'https://bintray.com/artifact/download/rollbrettler/generic/go-linux-arm-bootstrap.tbz'
+  default['go']['bootstrap_url'] = 'http://dave.cheney.net/paste/go-linux-arm-bootstrap-c788a8e.tbz'
 end
 default['go']['url'] = "http://golang.org/dl/#{node['go']['filename']}"
 default['go']['install_dir'] = '/usr/local'

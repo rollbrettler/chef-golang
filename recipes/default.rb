@@ -17,7 +17,7 @@
 # under the License.
 #
 
-bash "install-golang" do
+bash 'install-golang' do
   cwd Chef::Config[:file_cache_path]
   code <<-EOH
     rm -rf go
@@ -27,6 +27,8 @@ bash "install-golang" do
   not_if { node['go']['from_source'] }
   action :nothing
 end
+
+bootstrap_root = "#{node['go']['install_dir']}/go-bootstrap/go-#{node['go']['os']}-#{node['go']['arch']}-bootstrap"
 
 bash "build-golang" do
   cwd Chef::Config[:file_cache_path]
@@ -40,18 +42,18 @@ bash "build-golang" do
   EOH
   environment ({
     'GOROOT' => "#{node['go']['install_dir']}/go",
-    'GOBIN'  => '$GOROOT/bin',
-    'GOOS'   => node['go']['os'],
+    'GOBIN' => '$GOROOT/bin',
+    'GOOS' => node['go']['os'],
     'GOARCH' => node['go']['arch'],
-    'GOROOT_BOOTSTRAP' => node['go']['version'].to_f >= 1.5 ? "#{node['go']['install_dir']}/bootstrap/go-linux-arm-bootstrap" : '',
-    'GOARM'  => node['go']['arm']
+    'GOROOT_BOOTSTRAP' => node['go']['version'].to_f >= 1.5 ? bootstrap_root : '',
+    'GOARM' => node['go']['arm']
   })
   only_if { node['go']['from_source'] }
   action :nothing
 end
 
 if node['go']['from_source']
-  case node["platform"]
+  case node['platform']
   when 'debian', 'ubuntu'
     packages = %w(build-essential)
   when 'redhat', 'centos', 'fedora'
@@ -61,27 +63,6 @@ if node['go']['from_source']
     package dev_package do
       action :install
     end
-  end
-end
-
-if node['go']['version'].to_f >= 1.5
-  remote_file File.join(Chef::Config[:file_cache_path], 'bootstrap.tbz') do
-    source node['go']['bootstrap_url']
-    owner 'root'
-    mode 0644
-  end
-  bash "extract golang bootstrap" do
-    cwd Chef::Config[:file_cache_path]
-    code <<-EOH
-      rm -rf bootstrap
-      rm -rf #{node['go']['install_dir']}/bootstrap
-      mkdir -p #{node['go']['install_dir']}/bootstrap
-      tar -C #{node['go']['install_dir']}/bootstrap -xvjf bootstrap.tbz
-    EOH
-    environment ({
-      'GOROOT' => "#{node['go']['install_dir']}/bootstrap/go-linux-arm-bootstrap"
-    })
-    not_if "#{node['go']['install_dir']}/bootstrap/go-linux-arm-bootstrap/bin/go version | grep \"go#{node['go']['version']} \""
   end
 end
 
@@ -110,7 +91,7 @@ directory node['go']['gobin'] do
   mode node['go']['mode']
 end
 
-template "/etc/profile.d/golang.sh" do
+template '/etc/profile.d/golang.sh' do
   source 'golang.sh.erb'
   owner 'root'
   group 'root'

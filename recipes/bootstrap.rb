@@ -15,7 +15,7 @@ bash "extract golang bootstrap" do
     tar -C #{node['go']['install_dir']}/go-bootstrap -xvjf bootstrap.tbz
   EOH
   environment ({
-    GOROOT: bootstrap_root
+    'GOROOT' => bootstrap_root
   })
   not_if "#{bootstrap_root}/bin/go version | grep \"go#{node['go']['version']} \""
 end

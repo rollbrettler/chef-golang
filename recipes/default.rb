@@ -53,17 +53,7 @@ bash "build-golang" do
 end
 
 if node['go']['from_source']
-  case node['platform']
-  when 'debian', 'ubuntu'
-    packages = %w(build-essential)
-  when 'redhat', 'centos', 'fedora'
-    packages = %w(gcc glibc-devel)
-  end
-  packages.each do |dev_package|
-    package dev_package do
-      action :install
-    end
-  end
+  include_recipe 'build-essential::default'
 end
 
 remote_file File.join(Chef::Config[:file_cache_path], node['go']['filename']) do
